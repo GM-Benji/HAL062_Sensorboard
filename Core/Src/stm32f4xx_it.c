@@ -313,7 +313,7 @@ void TIM7_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM7_IRQn 0 */
 	uint8_t dataRx[] = {0,1,2,3,4,5,6,7};
-	uint32_t id = 202;
+	uint32_t id = 121;
 	Int32Bytes u;
 	u.value = finalWeight;
 	dataRx[0] = 1; //waga id
