@@ -23,6 +23,8 @@
 /* USER CODE BEGIN 0 */
 CAN_RxHeaderTypeDef	RxHeader;
 uint8_t				RxData[8];
+extern volatile int32_t tare;
+extern volatile int32_t weight;
 /* USER CODE END 0 */
 
 CAN_HandleTypeDef hcan1;
@@ -166,15 +168,19 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 	  }
 	  if(RxHeader.StdId == 0x78)
 	  {
-		  if(RxData[0] == 1)
+		  if(RxData[0] == 1) // wlaczanie indikatora
 		  {
 			  HAL_GPIO_WritePin(indi2_GPIO_Port, indi2_Pin,GPIO_PIN_SET);
 			  HAL_GPIO_WritePin(indi1_GPIO_Port, indi1_Pin,GPIO_PIN_SET);
 		  }
-		  if(RxData[0] == 2)
+		  if(RxData[0] == 2)// wylaczanie indykatora
 		  {
 			  HAL_GPIO_WritePin(indi2_GPIO_Port, indi2_Pin,GPIO_PIN_RESET);
 			  HAL_GPIO_WritePin(indi1_GPIO_Port, indi1_Pin,GPIO_PIN_RESET);
+		  }
+		  if(RxData[1] == 1)// tarowanie wagi nr 1
+		  {
+			  tare = weight;
 		  }
 	  }
 }

@@ -34,34 +34,34 @@ $(wildcard ../makefile.init) \
 $(wildcard ../makefile.targets) \
 
 
-BUILD_ARTIFACT_NAME := sensorboard
+BUILD_ARTIFACT_NAME := HAL062_Sensorboard
 BUILD_ARTIFACT_EXTENSION := elf
 BUILD_ARTIFACT_PREFIX :=
 BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ARTIFACT_EXTENSION),.$(BUILD_ARTIFACT_EXTENSION),)
 
 # Add inputs and outputs from these tool invocations to the build variables 
 EXECUTABLES += \
-sensorboard.elf \
+HAL062_Sensorboard.elf \
 
 MAP_FILES += \
-sensorboard.map \
+HAL062_Sensorboard.map \
 
 SIZE_OUTPUT += \
 default.size.stdout \
 
 OBJDUMP_LIST += \
-sensorboard.list \
+HAL062_Sensorboard.list \
 
 
 # All Target
 all: main-build
 
 # Main-build Target
-main-build: sensorboard.elf secondary-outputs
+main-build: HAL062_Sensorboard.elf secondary-outputs
 
 # Tool invocations
-sensorboard.elf sensorboard.map: $(OBJS) $(USER_OBJS) C:\Users\benia\STM32CubeIDE\workspace_1.16.1\sensorboard\STM32F446RETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "sensorboard.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\benia\STM32CubeIDE\workspace_1.16.1\sensorboard\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="sensorboard.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+HAL062_Sensorboard.elf HAL062_Sensorboard.map: $(OBJS) $(USER_OBJS) C:\Users\benia\STM32CubeIDE\workspace_1.16.1\HAL062_Sensorboard\STM32F446RETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "HAL062_Sensorboard.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\benia\STM32CubeIDE\workspace_1.16.1\HAL062_Sensorboard\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="HAL062_Sensorboard.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -70,14 +70,14 @@ default.size.stdout: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
 	@echo 'Finished building: $@'
 	@echo ' '
 
-sensorboard.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "sensorboard.list"
+HAL062_Sensorboard.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "HAL062_Sensorboard.list"
 	@echo 'Finished building: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) default.size.stdout sensorboard.elf sensorboard.list sensorboard.map
+	-$(RM) HAL062_Sensorboard.elf HAL062_Sensorboard.list HAL062_Sensorboard.map default.size.stdout
 	-@echo ' '
 
 secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST)

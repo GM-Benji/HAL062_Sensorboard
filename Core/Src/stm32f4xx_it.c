@@ -52,11 +52,25 @@
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+volatile uint8_t readOn = 1;
+volatile int32_t weight = 0;
+volatile uint8_t counter = 0;
+volatile uint32_t data = 0;
+volatile uint16_t counter2 = 0;
+volatile uint32_t weightSum = 0;
+volatile int32_t tare = 39723;
+volatile float knownOriginal = 9981;
+volatile float knownHX711 = 2674;
+volatile int32_t finalWeight;
+typedef union {
+    int32_t value;
+    uint8_t bytes[4];
+} Int32Bytes;
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
 extern CAN_HandleTypeDef hcan1;
+extern TIM_HandleTypeDef htim3;
 extern TIM_HandleTypeDef htim7;
 /* USER CODE BEGIN EV */
 
@@ -229,14 +243,86 @@ void CAN1_RX0_IRQHandler(void)
 }
 
 /**
+  * @brief This function handles TIM3 global interrupt.
+  */
+void TIM3_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM3_IRQn 0 */
+	if(readOn == 1)//odczyt danych
+		{
+			HAL_GPIO_TogglePin(SCK_GPIO_Port, SCK_Pin);
+			counter++;
+			if(counter >= 50)//koniec odczytu
+			{
+				readOn = 2;
+				counter = 0;
+			}
+			else
+			{
+				if(counter && counter<37)
+				{
+
+				if(counter % 2 == 0)//sck jest na low wiec mozna czytac bit
+				{
+					data = data << 1;
+					if(HAL_GPIO_ReadPin(DT_GPIO_Port, DT_Pin) == GPIO_PIN_SET)
+					{
+						data++;
+					}
+				}
+				}
+			}
+
+		}
+		if(readOn == 2)//delay pomiedzy odczytami
+		{
+			counter++;
+			if(HAL_GPIO_ReadPin(DT_GPIO_Port, DT_Pin) == GPIO_PIN_RESET && counter >= 10)
+			{
+
+				readOn = 1;
+				counter = 0;
+				weightSum += data;
+				//weight = (uint32_t)(weight-tare)*(knownOriginal / knownHX711);
+				//finalWeight = weight-68440080;
+				data = 0;
+				counter2++;
+				if(counter2 == 10)
+				{
+					weight = weightSum/10;
+					finalWeight = ((int32_t)(weight-tare))*(knownOriginal / knownHX711);
+
+					//printf("weight = %lu\n", weight);
+					counter2 = 0;
+					//weight = 0;
+					weightSum = 0;
+				}
+			}
+		}
+  /* USER CODE END TIM3_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim3);
+  /* USER CODE BEGIN TIM3_IRQn 1 */
+
+  /* USER CODE END TIM3_IRQn 1 */
+}
+
+/**
   * @brief This function handles TIM7 global interrupt.
   */
 void TIM7_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM7_IRQn 0 */
-	uint8_t data[] = {0,1,2,3,4,5,6,7};
+	uint8_t dataRx[] = {0,1,2,3,4,5,6,7};
 	uint32_t id = 202;
-	//CAN_SendMessage(id,data);
+	Int32Bytes u;
+	u.value = finalWeight;
+	dataRx[0] = 1; //waga id
+	// kopiujemy bajty
+	dataRx[1] = u.bytes[3];  // najstarszy
+	dataRx[2] = u.bytes[2];
+	dataRx[3] = u.bytes[1];
+	dataRx[4] = u.bytes[0];  // najmłodszy
+	CAN_SendMessage(id,dataRx);
   /* USER CODE END TIM7_IRQn 0 */
   HAL_TIM_IRQHandler(&htim7);
   /* USER CODE BEGIN TIM7_IRQn 1 */
