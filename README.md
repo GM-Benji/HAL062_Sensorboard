@@ -19,5 +19,6 @@ Komunikuje się z mainboardem przez magistralę CAN.
   - `1`, `2`, `3` → tarowanie wagi nr 1, 2, 3
 
 ### Ramki wysyłane
+- **ID = 121**
 - `data[0]` → ID wagi (`1`, `2`, `3`)
 - `data[1..4]` → wynik ważenia (`int32_t`, zapisany w 4 bajtach)
