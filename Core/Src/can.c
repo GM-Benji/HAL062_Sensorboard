@@ -23,8 +23,8 @@
 /* USER CODE BEGIN 0 */
 CAN_RxHeaderTypeDef	RxHeader;
 uint8_t				RxData[8];
-extern volatile int32_t tare;
-extern volatile int32_t weight;
+extern volatile int32_t tare[3];
+extern volatile int32_t weight[3];
 /* USER CODE END 0 */
 
 CAN_HandleTypeDef hcan1;
@@ -180,7 +180,15 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 		  }
 		  if(RxData[1] == 1)// tarowanie wagi nr 1
 		  {
-			  tare = weight;
+			  tare[0] = weight[0];
+		  }
+		  if(RxData[1] == 2)// tarowanie wagi nr 2
+		  {
+		  	  tare[1] = weight[1];
+		  }
+		  if(RxData[1] == 3)// tarowanie wagi nr 3
+		  {
+		  	  tare[2] = weight[2];
 		  }
 	  }
 }

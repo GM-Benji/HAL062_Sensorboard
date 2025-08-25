@@ -53,15 +53,15 @@
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 volatile uint8_t readOn = 1;
-volatile int32_t weight = 0;
+volatile int32_t weight[3] = {0,0,0};
 volatile uint8_t counter = 0;
-volatile uint32_t data = 0;
+volatile uint32_t data[3] = {0,0,0};
 volatile uint16_t counter2 = 0;
-volatile uint32_t weightSum = 0;
-volatile int32_t tare = 39723;
-volatile float knownOriginal = 9981;
-volatile float knownHX711 = 2674;
-volatile int32_t finalWeight;
+volatile uint32_t weightSum[3] = {0,0,0};
+volatile int32_t tare[3] = {39723,0,0};
+volatile float knownOriginal[3] = {9981,0,0};
+volatile float knownHX711[3] = {2674,0,0};
+volatile int32_t finalWeight[3] = {0,0,0};
 typedef union {
     int32_t value;
     uint8_t bytes[4];
@@ -264,10 +264,20 @@ void TIM3_IRQHandler(void)
 
 				if(counter % 2 == 0)//sck jest na low wiec mozna czytac bit
 				{
-					data = data << 1;
+					data[0] = data[0] << 1;
+					data[1] = data[1] << 1;
+					data[2] = data[2] << 1;
 					if(HAL_GPIO_ReadPin(DT_GPIO_Port, DT_Pin) == GPIO_PIN_SET)
 					{
-						data++;
+						data[0]++;
+					}
+					if(HAL_GPIO_ReadPin(DT2_GPIO_Port, DT2_Pin) == GPIO_PIN_SET)
+					{
+						data[1]++;
+					}
+					if(HAL_GPIO_ReadPin(DT3_GPIO_Port, DT3_Pin) == GPIO_PIN_SET)
+					{
+						data[2]++;
 					}
 				}
 				}
@@ -277,25 +287,26 @@ void TIM3_IRQHandler(void)
 		if(readOn == 2)//delay pomiedzy odczytami
 		{
 			counter++;
-			if(HAL_GPIO_ReadPin(DT_GPIO_Port, DT_Pin) == GPIO_PIN_RESET && counter >= 10)
+			if(HAL_GPIO_ReadPin(DT_GPIO_Port, DT_Pin) == GPIO_PIN_RESET &&
+			   HAL_GPIO_ReadPin(DT2_GPIO_Port, DT2_Pin) == GPIO_PIN_RESET &&
+			   HAL_GPIO_ReadPin(DT3_GPIO_Port, DT3_Pin) == GPIO_PIN_RESET &&
+			   counter >= 10)
 			{
-
 				readOn = 1;
 				counter = 0;
-				weightSum += data;
-				//weight = (uint32_t)(weight-tare)*(knownOriginal / knownHX711);
-				//finalWeight = weight-68440080;
-				data = 0;
+				for (int i = 0; i < 3; i++) {
+					weightSum[i] += data[i];
+				    data[i] = 0;
+				}
 				counter2++;
 				if(counter2 == 10)
 				{
-					weight = weightSum/10;
-					finalWeight = ((int32_t)(weight-tare))*(knownOriginal / knownHX711);
-
-					//printf("weight = %lu\n", weight);
+					for (int i = 0; i < 3; i++) {
+						weight[i] = weightSum[i]/10;
+						finalWeight[i] = ((int32_t)(weight[i]-tare[i]))*(knownOriginal[i] / knownHX711[i]);
+						weightSum[i] = 0;
+					}
 					counter2 = 0;
-					//weight = 0;
-					weightSum = 0;
 				}
 			}
 		}
@@ -312,17 +323,20 @@ void TIM3_IRQHandler(void)
 void TIM7_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM7_IRQn 0 */
-	uint8_t dataRx[] = {0,1,2,3,4,5,6,7};
+	uint8_t dataRx[3][8];
 	uint32_t id = 121;
-	Int32Bytes u;
-	u.value = finalWeight;
-	dataRx[0] = 1; //waga id
-	// kopiujemy bajty
-	dataRx[1] = u.bytes[3];  // najstarszy
-	dataRx[2] = u.bytes[2];
-	dataRx[3] = u.bytes[1];
-	dataRx[4] = u.bytes[0];  // najmłodszy
-	CAN_SendMessage(id,dataRx);
+	Int32Bytes u[3];
+	for (int i = 0; i < 3; i++) {
+		u[i].value = finalWeight[i];
+		dataRx[i][0] = 1+i; //waga id
+		// kopiujemy bajty
+		dataRx[i][1] = u[i].bytes[3];  // najstarszy
+		dataRx[i][2] = u[i].bytes[2];
+		dataRx[i][3] = u[i].bytes[1];
+		dataRx[i][4] = u[i].bytes[0];  // najmłodszy
+		CAN_SendMessage(id,dataRx[i]);
+	}
+
   /* USER CODE END TIM7_IRQn 0 */
   HAL_TIM_IRQHandler(&htim7);
   /* USER CODE BEGIN TIM7_IRQn 1 */
