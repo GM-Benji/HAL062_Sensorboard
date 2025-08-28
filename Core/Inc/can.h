@@ -35,7 +35,7 @@ extern "C" {
 extern CAN_HandleTypeDef hcan1;
 
 /* USER CODE BEGIN Private defines */
-void HAL_CAN_RxFifoMsgPendingCallback(CAN_HandleTypeDef *hcan);
+void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan);
 void CAN_SendMessage(uint32_t id, uint8_t *data);
 /* USER CODE END Private defines */
 

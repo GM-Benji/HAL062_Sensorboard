@@ -58,9 +58,10 @@ volatile uint8_t counter = 0;
 volatile uint32_t data[3] = {0,0,0};
 volatile uint16_t counter2 = 0;
 volatile uint32_t weightSum[3] = {0,0,0};
-volatile int32_t tare[3] = {39723,0,0};
-volatile float knownOriginal[3] = {9981,0,0};
-volatile float knownHX711[3] = {2674,0,0};
+volatile int32_t tare[3] = {253943,4278,8670};
+volatile float knownOriginal[3] = {10009,10009,10009};
+//volatile float knownOriginal[3] = {1,1,1};
+volatile float knownHX711[3] = {1744,1,1166};
 volatile int32_t finalWeight[3] = {0,0,0};
 typedef union {
     int32_t value;
@@ -251,6 +252,8 @@ void TIM3_IRQHandler(void)
 	if(readOn == 1)//odczyt danych
 		{
 			HAL_GPIO_TogglePin(SCK_GPIO_Port, SCK_Pin);
+			HAL_GPIO_TogglePin(SCK2_GPIO_Port, SCK2_Pin);
+			HAL_GPIO_TogglePin(SCK3_GPIO_Port, SCK3_Pin);
 			counter++;
 			if(counter >= 50)//koniec odczytu
 			{
@@ -334,7 +337,7 @@ void TIM7_IRQHandler(void)
 		dataRx[i][2] = u[i].bytes[2];
 		dataRx[i][3] = u[i].bytes[1];
 		dataRx[i][4] = u[i].bytes[0];  // najmłodszy
-		CAN_SendMessage(id,dataRx[i]);
+		CAN_SendMessage(id+i,dataRx[i]);
 	}
 
   /* USER CODE END TIM7_IRQn 0 */
