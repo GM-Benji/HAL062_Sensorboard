@@ -166,6 +166,21 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 	  {
 	    Error_Handler();
 	  }
+	  if(RxHeader.StdId == 0x32)
+	  {
+		  if(RxData[0] == 1)
+		  {
+			  HAL_GPIO_WritePin(indi2_GPIO_Port, indi2_Pin,GPIO_PIN_SET);
+			  HAL_GPIO_WritePin(indi1_GPIO_Port, indi1_Pin,GPIO_PIN_RESET);
+		  }
+		  if(RxData[2] == 1)
+		  {
+			  HAL_GPIO_WritePin(indi2_GPIO_Port, indi2_Pin,GPIO_PIN_RESET);
+			  HAL_GPIO_WritePin(indi1_GPIO_Port, indi1_Pin,GPIO_PIN_SET);
+		  }
+		  //32 01 00 00 01
+		  //32 00 00 01 01
+	  }
 	  if(RxHeader.StdId == 0x78)
 	  {
 		  if(RxData[0] == 1) // wlaczanie indikatora

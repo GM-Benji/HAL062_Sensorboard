@@ -58,10 +58,12 @@ volatile uint8_t counter = 0;
 volatile uint32_t data[3] = {0,0,0};
 volatile uint16_t counter2 = 0;
 volatile uint32_t weightSum[3] = {0,0,0};
-volatile int32_t tare[3] = {253943,4278,8670};
-volatile float knownOriginal[3] = {10009,10009,10009};
+//volatile int32_t tare[3] = {8672,254010,255315};
+volatile int32_t tare[3] = {0,0,0};
+volatile float knownOriginal[3] = {9978,9978,9978};
 //volatile float knownOriginal[3] = {1,1,1};
-volatile float knownHX711[3] = {1744,1,1166};
+volatile float knownHX711[3] = {1745,1171,1606};
+//volatile float knownHX711[3] = {1,1,1};
 volatile int32_t finalWeight[3] = {0,0,0};
 typedef union {
     int32_t value;
